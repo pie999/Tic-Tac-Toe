@@ -1,4 +1,6 @@
-const cells = document.querySelectorAll("button");
+const cells = document.querySelectorAll(".cell");
+const resetBut = document.querySelector(".resetBut");
+const winMess = document.querySelector(".winMess");
 
 
 const gameBoard = (() => {
@@ -6,6 +8,8 @@ const gameBoard = (() => {
     const gameArr =[0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     let playerTurn = 1;
+
+    let turn = 1;
 
     const checkLegal = function(index) {
         if (gameArr[index] == 0) return true;
@@ -35,11 +39,17 @@ const gameBoard = (() => {
             gameArr[2] == mark && gameArr[5] == mark && gameArr[8] == mark ||
             gameArr[0] == mark && gameArr[4] == mark && gameArr[8] == mark ||
             gameArr[2] == mark && gameArr[4] == mark && gameArr[6] == mark) {
-                console.log(`Player ${playerTurn} wins`);
+                winMess.textContent = `Player ${playerTurn} wins!`
                 for (let i=0; i<cells.length; i++) {
                     cells[i].disabled = true;
                 }
             }
+    }
+
+    const checkDraw = function() {
+        turn++;
+        if (turn == 10)
+            winMess.textContent = `It's a draw!`
     }
 
     const switchTurn = function() {
@@ -47,7 +57,16 @@ const gameBoard = (() => {
         else if (playerTurn == 2) playerTurn = 1;
     }
 
-    return {checkLegal, placeMark, renderBoard, checkWin, switchTurn};
+    const reset = function() {
+        for (let i=0; i<gameArr.length; i++){
+            gameArr[i] = 0;
+            cells[i].disabled = false;
+        }
+        turn = 1;
+        winMess.textContent = ""
+    }
+
+    return {checkLegal, placeMark, renderBoard, checkWin, checkDraw, switchTurn, reset};
 })();
 
 
@@ -61,9 +80,15 @@ for (let i=0; i<cells.length; i++) {
         if (gameBoard.checkLegal(i)) {
             gameBoard.placeMark(i);
             gameBoard.checkWin();
+            gameBoard.checkDraw();
             gameBoard.renderBoard();
             gameBoard.switchTurn();
         }
     });
 }
+
+resetBut.addEventListener("click", () => {
+    gameBoard.reset();
+    gameBoard.renderBoard();
+});
 
